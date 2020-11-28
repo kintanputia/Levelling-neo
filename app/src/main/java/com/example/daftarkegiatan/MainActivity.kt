@@ -10,89 +10,93 @@ import com.example.daftarkegiatan.room.Constant
 import com.example.daftarkegiatan.room.Note
 import com.example.daftarkegiatan.room.NoteDB
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
-    val db by lazy { NoteDB (this) }
+    private val db by lazy { NoteDB (this) }
     lateinit var noteAdapter: NoteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupView()
         setupListener()
         setupRecyclerView()
     }
 
-    override fun onStart() {
-        super.onStart()
-        loadNote()
+    override fun onResume(){
+        super.onResume()
+        loadData()
     }
 
-    fun loadNote(){
+    private fun loadData(){
         CoroutineScope(Dispatchers.IO).launch {
-            val notes = db.noteDao().getNotes()
-            Log.d("MainActivity", "dbResponses$notes")
+            noteAdapter.setData(db.noteDao().getNotes())
             withContext(Dispatchers.Main) {
-                noteAdapter.setData(notes)
+                noteAdapter.notifyDataSetChanged()
             }
         }
     }
 
-    fun setupListener(){
+    private fun setupView(){
+        supportActionBar!!.apply{
+            title="Catatan"
+        }
+    }
+    private fun setupListener(){
         button_create.setOnClickListener {
-            intentEdit(0, Constant.TYPE_CREATE)
+            intentEdit(Constant.TYPE_CREATE,0)
         }
     }
-
-    fun intentEdit(noteId:Int, intentType:Int){
-        startActivity(Intent(
-            applicationContext, EditActivity::class.java)
-            .putExtra("intent_id",noteId)
-            .putExtra("intent_id",intentType)
-        )
-    }
-
     private fun setupRecyclerView(){
-        noteAdapter= NoteAdapter(arrayListOf(),object:NoteAdapter.OnAdapterListener{
-            override fun onClick(note: Note) {
-                //membaca detail
-                intentEdit(note.id, Constant.TYPE_READ)
-            }
+        noteAdapter= NoteAdapter(
+                arrayListOf(),
+                object:NoteAdapter.OnAdapterListener{
+                    override fun onClick(note: Note) {
+                        //membaca detail
+                        intentEdit(Constant.TYPE_READ,note.id)
+                    }
 
-            override fun onUpdate(note: Note) {
-                intentEdit(note.id, Constant.TYPE_UPDATE)
-            }
+                    override fun onUpdate(note: Note) {
+                        intentEdit(Constant.TYPE_UPDATE,note.id)
+                    }
 
-            override fun onDelete(note: Note) {
-                deleteDialog(note)
-            }
-        })
+                    override fun onDelete(note: Note) {
+                        deleteAlert(note)
+                    }
+                })
         list_note.apply{
             layoutManager=LinearLayoutManager(applicationContext)
             adapter=noteAdapter
         }
     }
+    private fun intentEdit(intent_type:Int, note_id:Int){
+        startActivity(
+                Intent(this, EditActivity::class.java)
+                .putExtra("intent_type",intent_type)
+                .putExtra("note_id",note_id)
+        )
+    }
 
-    private fun deleteDialog(note: Note){
-        val alertDialog = AlertDialog.Builder(this)
-        alertDialog.apply {
+
+
+    private fun deleteAlert(note: Note){
+        val dialog = AlertDialog.Builder(this)
+        dialog.apply {
             setTitle("Konfirmasi")
             setMessage("Apakah anda yakin ingin menghapus ${note.title}?")
             setNegativeButton("Batal") { dialogInterface, i ->
                 dialogInterface.dismiss()
             }
             setPositiveButton("Hapus") { dialogInterface, i ->
-                dialogInterface.dismiss()
                 CoroutineScope(Dispatchers.IO).launch{
                     db.noteDao().deleteNote(note)
-                    loadNote()
+                    dialogInterface.dismiss()
+                    loadData()
                 }
             }
         }
-        alertDialog.show()
+        dialog.show()
     }
 }

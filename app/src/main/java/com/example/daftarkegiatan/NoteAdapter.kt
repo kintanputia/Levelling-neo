@@ -12,7 +12,8 @@ class NoteAdapter(private val notes:ArrayList<Note>, private val listener:OnAdap
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         return NoteViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.adapter_note, parent, false)
+            LayoutInflater.from(parent.context)
+                    .inflate(R.layout.adapter_note, parent, false)
         )
     }
 
@@ -34,10 +35,9 @@ class NoteAdapter(private val notes:ArrayList<Note>, private val listener:OnAdap
 
     class NoteViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
-    fun setData(list: List<Note>){
+    fun setData(newlist: List<Note>){
         notes.clear()
-        notes.addAll(list)
-        notifyDataSetChanged()
+        notes.addAll(newlist)
     }
 
     interface OnAdapterListener{
