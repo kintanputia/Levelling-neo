@@ -21,21 +21,24 @@ class EditActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit)
         setupView()
         setupListener()
-        //Toast.makeText(this,noteId.toString(),Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,noteId.toString(),Toast.LENGTH_SHORT).show()
     }
 
     fun setupView(){
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         val intentType=intent.getIntExtra("intent_type",0)
         when (intentType){
             Constant.TYPE_CREATE->{
-
+                button_update.visibility = View.GONE
             }
             Constant.TYPE_READ->{
-                button_save.visibility=View.GONE
-                //getNote()
+                button_save.visibility = View.GONE
+                button_update.visibility = View.GONE
+                getNote()
             }
             Constant.TYPE_UPDATE->{
-
+                button_save.visibility = View.GONE
+                getNote()
             }
         }
     }
@@ -49,6 +52,14 @@ class EditActivity : AppCompatActivity() {
                 finish()
             }
         }
+        button_update.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch{
+                db.noteDao().updateNote(
+                    Note (noteId,edit_title.text.toString(),edit_note.text.toString())
+                )
+                finish()
+            }
+        }
     }
     fun getNote(){
         noteId = intent.getIntExtra("intent_id", 0)
@@ -57,5 +68,10 @@ class EditActivity : AppCompatActivity() {
             edit_title.setText( notes.title )
             edit_note.setText( notes.note )
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onSupportNavigateUp()
     }
 }
