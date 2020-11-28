@@ -13,58 +13,61 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class EditActivity : AppCompatActivity() {
-    private val db by lazy {NoteDB (this)}
-    private var noteId=0
+    private val db by lazy { NoteDB(this) }
+    private var noteId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         setupView()
         setupLstener()
-        //Toast.makeText(this,noteId.toString(),Toast.LENGTH_SHORT).show()
     }
 
     private fun setupView(){
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        when (intentType()){
-            Constant.TYPE_CREATE->{
-                supportActionBar!!.title="TAMBAHKAN KEGIATAN"
-                button_save.visibility=View.VISIBLE
+        when (intentType()) {
+            Constant.TYPE_CREATE -> {
+                supportActionBar!!.title = "BUAT BARU"
+                button_save.visibility = View.VISIBLE
                 button_update.visibility = View.GONE
+
             }
-            Constant.TYPE_READ->{
-                supportActionBar!!.title="DETAIL"
+            Constant.TYPE_READ -> {
+                supportActionBar!!.title = "BACA"
                 button_save.visibility = View.GONE
                 button_update.visibility = View.GONE
                 getNote()
             }
-            Constant.TYPE_UPDATE->{
-                supportActionBar!!.title="EDIT KEGIATAN"
+            Constant.TYPE_UPDATE -> {
+                supportActionBar!!.title = "EDIT"
                 button_save.visibility = View.GONE
-                button_update.visibility=View.VISIBLE
+                button_update.visibility = View.VISIBLE
                 getNote()
             }
         }
     }
 
-    private fun setupLstener (){
+    private fun setupLstener(){
         button_save.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch{
+            CoroutineScope(Dispatchers.IO).launch {
                 db.noteDao().addNote(
-                    Note (
-                            0,
-                            edit_title.text.toString(),
-                            edit_note.text.toString())
+                        Note(
+                                0,
+                                edit_title.text.toString(),
+                                edit_note.text.toString()
+                        )
                 )
                 finish()
             }
         }
         button_update.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch{
+            CoroutineScope(Dispatchers.IO).launch {
                 db.noteDao().updateNote(
-                    Note (noteId,
-                            edit_title.text.toString(),
-                            edit_note.text.toString())
+                        Note(
+                                noteId,
+                                edit_title.text.toString(),
+                                edit_note.text.toString()
+                        )
                 )
                 finish()
             }
@@ -84,7 +87,9 @@ class EditActivity : AppCompatActivity() {
         finish()
         return super.onSupportNavigateUp()
     }
-    private fun intentType():Int {
-        return intent.getIntExtra("intent type", 0)
+
+    private fun intentType(): Int {
+        return intent.getIntExtra("intent_type", 0)
     }
+    
 }

@@ -14,7 +14,7 @@ import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val db by lazy { NoteDB (this) }
+    private val db by lazy { NoteDB(this) }
     lateinit var noteAdapter: NoteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
     }
 
-    override fun onResume(){
+    override fun onResume() {
         super.onResume()
         loadData()
     }
@@ -39,64 +39,70 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupView(){
-        supportActionBar!!.apply{
-            title="Catatan"
+    private fun setupView (){
+        supportActionBar!!.apply {
+            title = "Catatan"
         }
     }
+
     private fun setupListener(){
         button_create.setOnClickListener {
-            intentEdit(Constant.TYPE_CREATE,0)
+            intentEdit(Constant.TYPE_CREATE, 0)
         }
     }
-    private fun setupRecyclerView(){
-        noteAdapter= NoteAdapter(
+
+    private fun setupRecyclerView () {
+
+        noteAdapter = NoteAdapter(
                 arrayListOf(),
-                object:NoteAdapter.OnAdapterListener{
+                object : NoteAdapter.OnAdapterListener {
                     override fun onClick(note: Note) {
-                        //membaca detail
-                        intentEdit(Constant.TYPE_READ,note.id)
+                        intentEdit(Constant.TYPE_READ, note.id)
                     }
 
                     override fun onUpdate(note: Note) {
-                        intentEdit(Constant.TYPE_UPDATE,note.id)
+                        intentEdit(Constant.TYPE_UPDATE, note.id)
                     }
 
                     override fun onDelete(note: Note) {
                         deleteAlert(note)
                     }
+
                 })
-        list_note.apply{
-            layoutManager=LinearLayoutManager(applicationContext)
-            adapter=noteAdapter
+
+        list_note.apply {
+            layoutManager = LinearLayoutManager(applicationContext)
+            adapter = noteAdapter
         }
+
     }
-    private fun intentEdit(intent_type:Int, note_id:Int){
+
+    private fun intentEdit(intent_type: Int, note_id: Int) {
         startActivity(
                 Intent(this, EditActivity::class.java)
-                .putExtra("intent_type",intent_type)
-                .putExtra("note_id",note_id)
+                        .putExtra("intent_type", intent_type)
+                        .putExtra("note_id", note_id)
         )
+
     }
-
-
 
     private fun deleteAlert(note: Note){
         val dialog = AlertDialog.Builder(this)
         dialog.apply {
-            setTitle("Konfirmasi")
-            setMessage("Apakah anda yakin ingin menghapus ${note.title}?")
+            setTitle("Konfirmasi Hapus")
+            setMessage("Yakin hapus ${note.title}?")
             setNegativeButton("Batal") { dialogInterface, i ->
                 dialogInterface.dismiss()
             }
             setPositiveButton("Hapus") { dialogInterface, i ->
-                CoroutineScope(Dispatchers.IO).launch{
+                CoroutineScope(Dispatchers.IO).launch {
                     db.noteDao().deleteNote(note)
                     dialogInterface.dismiss()
                     loadData()
                 }
             }
         }
+
         dialog.show()
     }
 }
