@@ -27,7 +27,7 @@ abstract class NoteDB : RoomDatabase(){
         private fun buildDatabase(context: Context) = Room.databaseBuilder(
             context.applicationContext,
             NoteDB::class.java,
-            "levelling.db"
+            "levelling3.db"
         ).build()
 
     }

@@ -3,7 +3,6 @@ package com.example.daftarkegiatan
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import com.example.daftarkegiatan.room.Constant
 import com.example.daftarkegiatan.room.Note
 import com.example.daftarkegiatan.room.NoteDB
@@ -27,19 +26,19 @@ class EditActivity : AppCompatActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         when (intentType()) {
             Constant.TYPE_CREATE -> {
-                supportActionBar!!.title = "BUAT BARU"
+                supportActionBar!!.title = "TAMBAH DATA MAHASISWA"
                 button_save.visibility = View.VISIBLE
                 button_update.visibility = View.GONE
 
             }
             Constant.TYPE_READ -> {
-                supportActionBar!!.title = "BACA"
+                supportActionBar!!.title = "DETAIL MAHASISWA"
                 button_save.visibility = View.GONE
                 button_update.visibility = View.GONE
                 getNote()
             }
             Constant.TYPE_UPDATE -> {
-                supportActionBar!!.title = "EDIT"
+                supportActionBar!!.title = "EDIT DATA MAHASISWA"
                 button_save.visibility = View.GONE
                 button_update.visibility = View.VISIBLE
                 getNote()
@@ -54,7 +53,8 @@ class EditActivity : AppCompatActivity() {
                         Note(
                                 0,
                                 edit_title.text.toString(),
-                                edit_note.text.toString()
+                                edit_note.text.toString(),
+                                edit_jurusan.text.toString()
                         )
                 )
                 finish()
@@ -66,7 +66,8 @@ class EditActivity : AppCompatActivity() {
                         Note(
                                 noteId,
                                 edit_title.text.toString(),
-                                edit_note.text.toString()
+                                edit_note.text.toString(),
+                                edit_jurusan.text.toString()
                         )
                 )
                 finish()
@@ -80,6 +81,7 @@ class EditActivity : AppCompatActivity() {
             val notes = db.noteDao().getNote(noteId).get(0)
             edit_title.setText( notes.title )
             edit_note.setText( notes.note )
+            edit_jurusan.setText(notes.jurusan)
         }
     }
 
